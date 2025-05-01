@@ -1,11 +1,11 @@
 import React, { useState, FormEvent } from 'react';
 import { supabaseCLIENT } from '../../lib/supabaseClient'; // Adjust the import path as needed
 
-interface AddTodoFormProps {
+interface AddEditFormProps {
   onTodoAdded?: () => void; // Optional callback after adding a todo
 }
 
-const AddTodoForm: React.FC<AddTodoFormProps> = ({ onTodoAdded }) => {
+const AddEditForm: React.FC<AddEditFormProps> = ({ onTodoAdded }) => {
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [dueDate, setDueDate] = useState<string>(''); // Store as string for input type="datetime-local"
@@ -249,4 +249,4 @@ const AddTodoForm: React.FC<AddTodoFormProps> = ({ onTodoAdded }) => {
   );
 };
 
-export default AddTodoForm;
+export default AddEditForm;
