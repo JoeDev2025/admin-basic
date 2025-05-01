@@ -12,7 +12,7 @@ const AddTodoForm: React.FC<AddTodoFormProps> = ({ onTodoAdded }) => {
   const [isImportant, setIsImportant] = useState<boolean>(false);
   const [tags, setTags] = useState<string>(''); // Comma-separated tags
   const [repeatFrequency, setRepeatFrequency] = useState<string>('');
-  const [displayOrder, setDisplayOrder] = useState<number>(0); // Default display order
+  // REMOVED: const [displayOrder, setDisplayOrder] = useState<number>(0); // Default display order
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,25 +30,51 @@ const AddTodoForm: React.FC<AddTodoFormProps> = ({ onTodoAdded }) => {
       setIsLoading(false);
       return;
     }
-    if (isNaN(displayOrder)) {
-      setError('Display Order must be a number.');
+    // REMOVED: Display Order validation
+
+    const { data: userData, error: userError } = await supabaseCLIENT.auth.getUser();
+
+    if (userError || !userData?.user) {
+      setError('User not logged in or error fetching user.');
+      setIsLoading(false);
+      console.error('User fetch error:', userError);
+      return; // Stop execution if user is not available
+    }
+
+    const userId = userData.user.id;
+
+    // Fetch the current maximum display_order for this user
+    let nextDisplayOrder = 1; // Default if no todos exist yet
+    try {
+      const { data: maxOrderData, error: maxOrderError } = await supabaseCLIENT
+        .from('todos')
+        .select('display_order')
+        .eq('user_id', userId)
+        .order('display_order', { ascending: false })
+        .limit(1)
+        .maybeSingle(); // Use maybeSingle to handle 0 or 1 result gracefully
+
+      if (maxOrderError) {
+        throw maxOrderError;
+      }
+
+      if (maxOrderData) {
+        nextDisplayOrder = maxOrderData.display_order + 1;
+      }
+    } catch (err: any) {
+      console.error('Error fetching max display order:', err);
+      setError(`Failed to determine display order: ${err.message || 'Unknown error'}`);
       setIsLoading(false);
       return;
     }
 
-    const user = await supabaseCLIENT.auth.getUser()
-
-    if (!user.data?.user) {
-      throw new Error('User not logged in')
-    }
-
 
     const todoData = {
-      user_id: user.data.user.id,
+      user_id: userId,
       title: title.trim(),
       description: description.trim() || null, // Use null if empty
       is_complete: false, // Default value
-      display_order: displayOrder,
+      display_order: nextDisplayOrder, // Use calculated value
       is_important: isImportant,
       due_date: dueDate ? new Date(dueDate).toISOString() : null, // Convert to ISO string or null
       tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag), // Split, trim, and remove empty tags
@@ -73,7 +99,7 @@ const AddTodoForm: React.FC<AddTodoFormProps> = ({ onTodoAdded }) => {
       setIsImportant(false);
       setTags('');
       setRepeatFrequency('');
-      setDisplayOrder(0);
+      // REMOVED: setDisplayOrder(0);
 
 
       // Call the callback if provided
@@ -133,7 +159,8 @@ const AddTodoForm: React.FC<AddTodoFormProps> = ({ onTodoAdded }) => {
         />
       </div>
 
-      <div>
+      {/* REMOVED: Display Order Input Field */}
+      {/* <div>
         <label htmlFor="displayOrder" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Display Order <span className="text-red-500">*</span>
         </label>
@@ -145,7 +172,7 @@ const AddTodoForm: React.FC<AddTodoFormProps> = ({ onTodoAdded }) => {
           required
           className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
         />
-      </div>
+      </div> */}
 
       <div>
         <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
