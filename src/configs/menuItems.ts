@@ -1,4 +1,5 @@
 import { FaHome, FaKeycdn } from "react-icons/fa";
+import { FaPencil } from "react-icons/fa6";
 
 type MenuItem = {
 	icon?: React.ElementType;
@@ -18,5 +19,10 @@ export const menuItems: MenuItem[] = [
 		icon: FaKeycdn,
 		label: "Media CDN",
 		route: "/media-cdn",
+	},
+	{
+		icon: FaPencil,
+		label: "TODO List",
+		route: "/todo-list",
 	},
 ];
