@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { supabaseCLIENT } from '../../lib/supabaseClient'; // Adjust the import path as needed
+import AddEditForm from './AddEditForm'; // Import the AddEditForm component
 
 interface Todo {
     user_id: string;
@@ -16,6 +17,8 @@ const DisplayTodos: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [viewOnlyMyTodos, setViewOnlyMyTodos] = useState<boolean>(true); // State for toggling view
     const [expandedTodos, setExpandedTodos] = useState<Set<string>>(new Set()); // Track expanded todos
+    const [isEditing, setIsEditing] = useState<boolean>(false); // State for showing the edit form
+    const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null); // Track the selected todo for editing
 
     useEffect(() => {
         const fetchTodos = async () => {
@@ -68,6 +71,28 @@ const DisplayTodos: React.FC = () => {
         });
     };
 
+    const handleEditClick = (todo: Todo) => {
+        setSelectedTodo(todo);
+        setIsEditing(true);
+    };
+
+    const handleFormClose = () => {
+        setIsEditing(false);
+        setSelectedTodo(null);
+        // Optionally, refetch todos after editing
+        const fetchTodos = async () => {
+            const { data, error } = await supabaseCLIENT
+                .from('todos')
+                .select('user_id,todo_id, title, description, due_date')
+                .order('display_order', { ascending: true });
+
+            if (!error) {
+                setTodos(data || []);
+            }
+        };
+        fetchTodos();
+    };
+
     const handleDragEnd = async (result: any) => {
         if (!result.destination) return;
 
@@ -85,7 +110,6 @@ const DisplayTodos: React.FC = () => {
                     .from('todos')
                     .update({ display_order: index + 1 }) // Only update display_order
                     .eq('todo_id', todo.todo_id); // Match the specific todo by ID
-                console.log('todo_id', todo.todo_id, 'Display order: ', index + 1)
 
                 if (updateError) {
                     console.error('Error updating display order:', updateError);
@@ -166,6 +190,12 @@ const DisplayTodos: React.FC = () => {
                                                         Due: {new Date(todo.due_date).toLocaleString()}
                                                     </p>
                                                 )}
+                                                <button
+                                                    onClick={() => handleEditClick(todo)}
+                                                    className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                                                >
+                                                    Edit
+                                                </button>
                                             </li>
                                         )}
                                     </Draggable>
@@ -175,6 +205,19 @@ const DisplayTodos: React.FC = () => {
                         )}
                     </Droppable>
                 </DragDropContext>
+            )}
+
+            {isEditing && selectedTodo && (
+                <div className="mt-6">
+                    <AddEditForm
+                        existingTodo={selectedTodo}
+                        onTodoUpdated={handleFormClose}
+                        onClose={() => {
+                            setIsEditing(false); // Close the form
+                            setSelectedTodo(null); // Clear the selected todo
+                        }}
+                    />
+                </div>
             )}
         </div>
     );
