@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* Small Thin Dark Grey Scrollbar */
+.scrollbar-thin-dark {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #555 #222; /* Thumb color, Track color */
+}
+
+.scrollbar-thin-dark::-webkit-scrollbar {
+  width: 6px; /* Scrollbar width */
+  height: 6px; /* Horizontal scrollbar height */
+}
+
+.scrollbar-thin-dark::-webkit-scrollbar-thumb {
+  background-color: #555; /* Thumb color */
+  border-radius: 10px; /* Rounded corners */
+}
+
+.scrollbar-thin-dark::-webkit-scrollbar-thumb:hover {
+  background-color: #777; /* Thumb hover color */
+}
+
+.scrollbar-thin-dark::-webkit-scrollbar-track {
+  background: #222; /* Track color */
+}
+
+
+select[multiple] option:checked {
+  background-color: #4caf5055; /* Green background for selected */
+  color: white; /* White text for selected */
+  margin-bottom: 5px;
+}
