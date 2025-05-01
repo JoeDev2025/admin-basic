@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { supabaseCLIENT } from '../../lib/supabaseClient'; // Adjust the import path as needed
 
 interface Todo {
+    user_id: string;
     todo_id: string;
     title: string;
     description: string | null;
@@ -32,8 +34,8 @@ const DisplayTodos: React.FC = () => {
 
             const query = supabaseCLIENT
                 .from('todos')
-                .select('todo_id, title, description, due_date')
-                .order('due_date', { ascending: true });
+                .select('user_id,todo_id, title, description, due_date')
+                .order('display_order', { ascending: true });
 
             if (viewOnlyMyTodos) {
                 query.eq('user_id', userId); // Filter for only the current user's todos
@@ -66,6 +68,37 @@ const DisplayTodos: React.FC = () => {
         });
     };
 
+    const handleDragEnd = async (result: any) => {
+        if (!result.destination) return;
+
+        const reorderedTodos = Array.from(todos);
+        const [movedTodo] = reorderedTodos.splice(result.source.index, 1);
+        reorderedTodos.splice(result.destination.index, 0, movedTodo);
+
+        setTodos(reorderedTodos);
+
+        // Update the database with the new display order
+        try {
+            for (let index = 0; index < reorderedTodos.length; index++) {
+                const todo = reorderedTodos[index];
+                const { error: updateError } = await supabaseCLIENT
+                    .from('todos')
+                    .update({ display_order: index + 1 }) // Only update display_order
+                    .eq('todo_id', todo.todo_id); // Match the specific todo by ID
+                console.log('todo_id', todo.todo_id, 'Display order: ', index + 1)
+
+                if (updateError) {
+                    console.error('Error updating display order:', updateError);
+                    setError('Failed to update display order.');
+                    return;
+                }
+            }
+        } catch (err) {
+            console.error('Unexpected error:', err);
+            setError('An unexpected error occurred.');
+        }
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -95,33 +128,53 @@ const DisplayTodos: React.FC = () => {
             {todos.length === 0 ? (
                 <p className="text-gray-700 dark:text-gray-300">No todos found.</p>
             ) : (
-                <ul className="space-y-4">
-                    {todos.map((todo) => (
-                        <li key={todo.todo_id} className="p-4 bg-gray-100 dark:bg-gray-700 rounded shadow">
-                            <h3 className="text-lg font-medium text-gray-900 dark:text-white">{todo.title}</h3>
-                            {todo.description && (
-                                <div className="text-sm text-gray-700 dark:text-gray-300">
-                                    {expandedTodos.has(todo.todo_id)
-                                        ? todo.description
-                                        : `${todo.description.slice(0, 50)}...`}
-                                    {todo.description.length > 50 && (
-                                        <button
-                                            onClick={() => toggleExpand(todo.todo_id)}
-                                            className="ml-2 text-indigo-600 dark:text-indigo-400 underline"
-                                        >
-                                            {expandedTodos.has(todo.todo_id) ? 'Collapse' : 'Expand'}
-                                        </button>
-                                    )}
-                                </div>
-                            )}
-                            {todo.due_date && (
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    Due: {new Date(todo.due_date).toLocaleString()}
-                                </p>
-                            )}
-                        </li>
-                    ))}
-                </ul>
+                <DragDropContext onDragEnd={handleDragEnd}>
+                    <Droppable droppableId="todos">
+                        {(provided) => (
+                            <ul
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                                className="space-y-4"
+                            >
+                                {todos.map((todo, index) => (
+                                    <Draggable key={todo.todo_id} draggableId={todo.todo_id} index={index}>
+                                        {(provided) => (
+                                            <li
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                ref={provided.innerRef}
+                                                className="p-4 bg-gray-100 dark:bg-gray-700 rounded shadow"
+                                            >
+                                                <h3 className="text-lg font-medium text-gray-900 dark:text-white">{todo.title}</h3>
+                                                {todo.description && (
+                                                    <div className="text-sm text-gray-700 dark:text-gray-300">
+                                                        {expandedTodos.has(todo.todo_id)
+                                                            ? todo.description
+                                                            : `${todo.description.slice(0, 50)}...`}
+                                                        {todo.description.length > 50 && (
+                                                            <button
+                                                                onClick={() => toggleExpand(todo.todo_id)}
+                                                                className="ml-2 text-indigo-600 dark:text-indigo-400 underline"
+                                                            >
+                                                                {expandedTodos.has(todo.todo_id) ? 'Collapse' : 'Expand'}
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                {todo.due_date && (
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                        Due: {new Date(todo.due_date).toLocaleString()}
+                                                    </p>
+                                                )}
+                                            </li>
+                                        )}
+                                    </Draggable>
+                                ))}
+                                {provided.placeholder}
+                            </ul>
+                        )}
+                    </Droppable>
+                </DragDropContext>
             )}
         </div>
     );
