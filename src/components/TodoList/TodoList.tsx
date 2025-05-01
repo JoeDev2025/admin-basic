@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import AddTodoForm from "./AddTodoForm";
+import AddTodoForm from "./AddEditForm";
 import DisplayTodos from "./DisplayTodos";
 
 export default function TodoList() {
