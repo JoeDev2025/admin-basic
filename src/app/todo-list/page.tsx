@@ -1,4 +1,5 @@
 import BlankComponent from "@/components/BlankComponent/BlankComponent";
+import TodoList from "@/components/TodoList/TodoList";
 import { PageProtected } from "@/components/UI/Auth/PageProtected";
 import DefaultLayout from "@/components/UI/DefaultLayout";
 import PageHeader from "@/components/UI/PageHeader";
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 	description,
 };
 
-export default function ProfileEditorPage() {
+export default function TodoListPage() {
 	return (
 		<DefaultLayout>
 			<PageProtected>
@@ -26,7 +27,7 @@ export default function ProfileEditorPage() {
 					</p>
 				</PageHeader>
 
-				<h1>Welcome to Todo List</h1>
+				<TodoList />
 
 				{/* END Your content goes here */}
 			</PageProtected>
