@@ -13,6 +13,9 @@ const config: Config = {
 				background: "var(--background)",
 				foreground: "var(--foreground)",
 			},
+			gridTemplateColumns: {
+				16: "repeat(16, minmax(0, 1fr))",
+			},
 		},
 	},
 	plugins: [typography],
