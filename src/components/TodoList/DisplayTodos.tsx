@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { supabaseCLIENT } from '../../lib/supabaseClient'; // Adjust the import path as needed
+import AddEditForm from './AddEditForm'; // Import the AddEditForm component
+import ConfirmationPopover from '../UI/ConfirmationPopover';
+import { BiEdit } from "react-icons/bi"; // Import the edit icon
 
 interface Todo {
     user_id: string;
@@ -16,6 +19,9 @@ const DisplayTodos: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [viewOnlyMyTodos, setViewOnlyMyTodos] = useState<boolean>(true); // State for toggling view
     const [expandedTodos, setExpandedTodos] = useState<Set<string>>(new Set()); // Track expanded todos
+    const [isEditing, setIsEditing] = useState<boolean>(false); // State for showing the edit form
+    const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null); // Track the selected todo for editing
+    const [isProcessingDelete, setIsProcessingDelete] = useState<string | null>(null); // Track delete processing state
 
     useEffect(() => {
         const fetchTodos = async () => {
@@ -68,6 +74,28 @@ const DisplayTodos: React.FC = () => {
         });
     };
 
+    const handleEditClick = (todo: Todo) => {
+        setSelectedTodo(todo);
+        setIsEditing(true);
+    };
+
+    const handleFormClose = () => {
+        setIsEditing(false);
+        setSelectedTodo(null);
+        // Optionally, refetch todos after editing
+        const fetchTodos = async () => {
+            const { data, error } = await supabaseCLIENT
+                .from('todos')
+                .select('user_id,todo_id, title, description, due_date')
+                .order('display_order', { ascending: true });
+
+            if (!error) {
+                setTodos(data || []);
+            }
+        };
+        fetchTodos();
+    };
+
     const handleDragEnd = async (result: any) => {
         if (!result.destination) return;
 
@@ -85,7 +113,6 @@ const DisplayTodos: React.FC = () => {
                     .from('todos')
                     .update({ display_order: index + 1 }) // Only update display_order
                     .eq('todo_id', todo.todo_id); // Match the specific todo by ID
-                console.log('todo_id', todo.todo_id, 'Display order: ', index + 1)
 
                 if (updateError) {
                     console.error('Error updating display order:', updateError);
@@ -96,6 +123,28 @@ const DisplayTodos: React.FC = () => {
         } catch (err) {
             console.error('Unexpected error:', err);
             setError('An unexpected error occurred.');
+        }
+    };
+
+    const handleDelete = async (todoId: string) => {
+        setIsProcessingDelete(todoId); // Set the processing state for the specific todo
+        try {
+            const { error } = await supabaseCLIENT
+                .from('todos')
+                .delete()
+                .eq('todo_id', todoId);
+
+            if (error) {
+                console.error('Error deleting todo:', error);
+                setError('Failed to delete todo.');
+            } else {
+                setTodos((prevTodos) => prevTodos.filter((todo) => todo.todo_id !== todoId));
+            }
+        } catch (err) {
+            console.error('Unexpected error:', err);
+            setError('An unexpected error occurred.');
+        } finally {
+            setIsProcessingDelete(null); // Clear the processing state
         }
     };
 
@@ -166,6 +215,21 @@ const DisplayTodos: React.FC = () => {
                                                         Due: {new Date(todo.due_date).toLocaleString()}
                                                     </p>
                                                 )}
+                                                <div className="flex items-center gap-2 mt-2">
+                                                    <button
+                                                        onClick={() => handleEditClick(todo)}
+                                                        className="bg-blue-600 mb-1 hover:bg-blue-700 text-white px-3 py-1 rounded flex items-center gap-2"
+                                                    >
+                                                        <BiEdit className="w-4 h-4" /> 
+                                                    </button>
+                                                    <ConfirmationPopover
+                                                        onConfirm={() => handleDelete(todo.todo_id)}
+                                                        onCancel={() => console.log('Delete canceled')}
+                                                        isProcessing={isProcessingDelete === todo.todo_id}
+                                                    >
+                                                        <p className="text-xs text-white">Are you sure you want to delete this todo?</p>
+                                                    </ConfirmationPopover>
+                                                </div>
                                             </li>
                                         )}
                                     </Draggable>
@@ -175,6 +239,19 @@ const DisplayTodos: React.FC = () => {
                         )}
                     </Droppable>
                 </DragDropContext>
+            )}
+
+            {isEditing && selectedTodo && (
+                <div className="mt-6">
+                    <AddEditForm
+                        existingTodo={selectedTodo}
+                        onTodoUpdated={handleFormClose}
+                        onClose={() => {
+                            setIsEditing(false); // Close the form
+                            setSelectedTodo(null); // Clear the selected todo
+                        }}
+                    />
+                </div>
             )}
         </div>
     );
