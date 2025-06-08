@@ -4,5 +4,14 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"todo-tree.general.tags": [
+			"FIXME",
+			"TODO",
+			"REVIEW",
+			"REFACTOR",
+			"NOTE"
+		],
+		"todo-tree.highlights.useColourScheme": true
+	}
 }
