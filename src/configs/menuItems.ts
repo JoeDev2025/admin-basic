@@ -20,12 +20,7 @@ export const menuItems: MenuItem[] = [
 		icon: FaKeycdn,
 		label: "Media CDN",
 		route: "/media-cdn",
-	},
-	{
-		icon: FaPencil,
-		label: "TODO List",
-		route: "/todo-list",
-	},
+	},	
 	{
 		icon: MdDragIndicator,
 		label: "Drag & Drop",
