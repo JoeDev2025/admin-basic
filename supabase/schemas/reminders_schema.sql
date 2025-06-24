@@ -3,7 +3,7 @@
 -- Create the reminders table
 CREATE TABLE reminders (
     reminder_id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     title text,
     description text NOT NULL,  
     created_at timestamp DEFAULT now()
