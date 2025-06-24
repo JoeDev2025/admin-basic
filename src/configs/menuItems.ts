@@ -20,10 +20,14 @@ export const menuItems: MenuItem[] = [
 		icon: FaKeycdn,
 		label: "Media CDN",
 		route: "/media-cdn",
-	},	
+	},
 	{
 		icon: MdDragIndicator,
 		label: "Drag & Drop",
 		route: "/dnd-kit",
+	}, {
+		icon: FaPencil,
+		label: "Reminders",
+		route: "/reminders",
 	},
 ];
