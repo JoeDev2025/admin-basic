@@ -34,7 +34,7 @@ export default async function RemindersPage() {
 
 	//fetch reminders only if the admin_role is 'super_admin'
 	let reminders: Reminder[] = [];
-	if (data?.admin_role === 'admin') { //NOTE On hardcoded solution, change this to test (standard, admin or super_admin)
+	if (data?.admin_role === 'super_admin') { //NOTE On hardcoded solution, change this to test (standard, admin or super_admin)
 		const { data } = await supabaseBACKEND.from('reminders')
 			.select()
 			.order('user_id', { ascending: false }) as { data: Reminder[] | [] };
