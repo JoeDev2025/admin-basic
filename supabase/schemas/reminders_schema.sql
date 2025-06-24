@@ -18,15 +18,3 @@ ON reminders
 FOR ALL
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
-
--- Create RLS policy to allow super_admin to access all reminders
-CREATE POLICY "Allow super_admin to access all reminders"
-ON reminders
-FOR ALL
-USING (
-  EXISTS (
-    SELECT 1 FROM admin_users
-    WHERE admin_users.user_id = auth.uid()
-      AND admin_users.admin_role = 'super_admin'
-  )
-);
