@@ -21,7 +21,8 @@ export type Reminder = {
 };
 
 export default async function RemindersPage() {
-	//REVIEW Used supabaseBACKEND to bypass RLS policies with SERVICE_ROLE_KEY. Is this the idea?
+	/* REVIEW Used supabaseBACKEND to bypass RLS policies with SERVICE_ROLE_KEY and fetch all users data 
+	in case the authenticated user has the permissions for that. Is this the idea? */
 
 	// NOTE Since I could not find a way to get the current auth user, I hardcoded it
 	const userId = 'b658464c-81ad-4993-ad3b-5527f98749db';
