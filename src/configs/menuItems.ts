@@ -23,11 +23,15 @@ export const menuItems: MenuItem[] = [
 	{
 		icon: BiCog,
 		iconExpanded: BiSolidCog,
-		label: "Settings",
+		label: "Settings & Extra",
 		children: [
 			{
 				label: "Profile & Account",
 				route: "/profile",
+			},
+			{
+				label: "Built Via Electron",
+				route: "/built-via-electron",
 			},
 		],
 	},

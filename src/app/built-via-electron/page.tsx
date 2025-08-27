@@ -1,12 +1,13 @@
-import BlankComponent from "@/components/BlankComponent/BlankComponent";
+import BuiltViaElectron from "@/components/BuiltViaElectron/BuiltViaElectron";
 import { PageProtected } from "@/components/UI/Auth/PageProtected";
 import DefaultLayout from "@/components/UI/DefaultLayout";
 import PageHeader from "@/components/UI/PageHeader";
 import { Metadata } from "next";
-import { FaRegMehBlank } from "react-icons/fa";
+import { TbSolarElectricity } from "react-icons/tb";
 
 const title = "Built via Electron";
-const description = "Built Via Electron";
+const description =
+	"Admin site and Website built via Electron - this shows you how, and lets you confirm everything is all correct!";
 
 export const metadata: Metadata = {
 	title,
@@ -19,13 +20,11 @@ export default function ProfileEditorPage() {
 			<PageProtected>
 				{/* START Your content goes here */}
 
-				<PageHeader title={title} icon={FaRegMehBlank}>
-					<p>
-						{description}
-					</p>
+				<PageHeader title={title} icon={TbSolarElectricity}>
+					<p>{description}</p>
 				</PageHeader>
 
-				<BlankComponent />
+				<BuiltViaElectron />
 
 				{/* END Your content goes here */}
 			</PageProtected>
