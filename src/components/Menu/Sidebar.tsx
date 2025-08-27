@@ -21,12 +21,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 						? "translate-x-0 shadow-lg shadow-black lg:shadow-none"
 						: "-translate-x-full"
 				}`}>
-				<div className="flex items-center justify-between px-6 py-6 gap-3">
+				<div className="flex items-center justify-between px-0 pt-2 gap-3">
 					<BrandingHeader />
 					<button
 						onClick={() => setSidebarOpen(!sidebarOpen)}
 						aria-controls="sidebar"
-						className="block lg:hidden" // Only shows when the screen is small
+						className="block lg:hidden absolute top-2 right-2 text-xs opacity-50 hover:opacity-100" // Only shows when the screen is small
 					>
 						<FaTimes />
 					</button>

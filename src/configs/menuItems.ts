@@ -1,6 +1,5 @@
+import { BiCog, BiSolidCog } from "react-icons/bi";
 import { FaHome, FaKeycdn } from "react-icons/fa";
-import { FaPencil } from "react-icons/fa6";
-import { MdDragIndicator } from "react-icons/md";
 
 type MenuItem = {
 	icon?: React.ElementType;
@@ -22,13 +21,14 @@ export const menuItems: MenuItem[] = [
 		route: "/media-cdn",
 	},
 	{
-		icon: FaPencil,
-		label: "TODO List",
-		route: "/todo-list",
-	},
-	{
-		icon: MdDragIndicator,
-		label: "Drag & Drop",
-		route: "/dnd-kit",
+		icon: BiCog,
+		iconExpanded: BiSolidCog,
+		label: "Settings",
+		children: [
+			{
+				label: "Profile & Account",
+				route: "/profile",
+			},
+		],
 	},
 ];
