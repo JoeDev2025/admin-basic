@@ -10,18 +10,19 @@ export const supabaseCLIENT = createClient(
 
 export const supabaseSTORAGE_PATH = "/storage/v1/object/public/"; // This is generally the same, but left it here in case it changes
 
+const authTokenKey =
+	`sb-${process.env.NEXT_PUBLIC_SUPABASE_PROJECT_REF}-auth-token` ||
+	"invalid-project-ref";
+
 // Automatically handle token refresh and sync with localStorage
 if (typeof window !== "undefined") {
 	supabaseCLIENT.auth.onAuthStateChange((event, session) => {
 		if (session) {
 			// Update the token in localStorage when a new session is set
-			localStorage.setItem(
-				"sb-ksxxirshjgoonozkkvqg-auth-token",
-				JSON.stringify(session)
-			);
+			localStorage.setItem(authTokenKey, JSON.stringify(session));
 		} else if (event === "SIGNED_OUT") {
 			// Clear token from localStorage on sign out
-			localStorage.removeItem("sb-ksxxirshjgoonozkkvqg-auth-token");
+			localStorage.removeItem(authTokenKey);
 		}
 	});
 }
@@ -29,9 +30,7 @@ if (typeof window !== "undefined") {
 export const fetchSBAuthToken = async (): Promise<string | null> => {
 	if (typeof window === "undefined") return null;
 
-	const storedToken = localStorage.getItem(
-		"sb-ksxxirshjgoonozkkvqg-auth-token"
-	);
+	const storedToken = localStorage.getItem(authTokenKey);
 	if (!storedToken) return null;
 
 	const parsedToken = JSON.parse(storedToken);
@@ -51,10 +50,7 @@ export const fetchSBAuthToken = async (): Promise<string | null> => {
 		}
 
 		if (session) {
-			localStorage.setItem(
-				"sb-ksxxirshjgoonozkkvqg-auth-token",
-				JSON.stringify(session)
-			);
+			localStorage.setItem(authTokenKey, JSON.stringify(session));
 			return session.access_token;
 		}
 	}
